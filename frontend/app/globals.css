@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+/* ── Animated Typography ────────────────────────── */
+
+/* Animated gradient text */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-text {
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* Fade-in-up animation */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stat-card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out both;
+}
+
+.stat-card {
+  animation: stat-card-rise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.delay-100ms { animation-delay: 0.1s; }
+.delay-200ms { animation-delay: 0.2s; }
+.delay-300ms { animation-delay: 0.3s; }
+.delay-400ms { animation-delay: 0.4s; }
+.delay-500ms { animation-delay: 0.5s; }
+
+/* Typewriter cursor blink */
+@keyframes blink-caret {
+  50% { border-color: transparent; }
+}
+
+.typewriter {
+  display: inline-block;
+  border-right: 3px solid #818cf8;
+  padding-right: 4px;
+  animation: blink-caret 0.75s step-end infinite;
+}
+
+/* Floating text effect */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
