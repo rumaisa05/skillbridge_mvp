@@ -15,6 +15,12 @@ export default function ProfilePage() {
     skills: "",
     github_url: "",
   });
+  const [originalForm, setOriginalForm] = useState({
+    name: "",
+    bio: "",
+    skills: "",
+    github_url: "",
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -37,12 +43,14 @@ export default function ProfilePage() {
         } else if (Array.isArray(skills)) {
           skills = skills.join(", ");
         }
-        setForm({
+        const loaded = {
           name: data.name || "",
           bio: data.bio || "",
           skills: skills || "",
           github_url: data.github_url || "",
-        });
+        };
+        setForm(loaded);
+        setOriginalForm(loaded);
       } catch {
         setMessage({ type: "error", text: "Failed to load profile" });
       } finally {
@@ -75,6 +83,14 @@ export default function ProfilePage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const cancel = () => {
+    // Discard unsaved changes and return to the profile page.
+    // Never rely on router.back() which can land on an unrelated page (e.g. /portfolio).
+    setForm(originalForm);
+    setMessage(null);
+    router.push("/profile");
   };
 
   if (!user) {
@@ -170,7 +186,7 @@ export default function ProfilePage() {
               </button>
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={cancel}
                 className="text-slate-500 hover:text-slate-700 font-medium"
               >
                 Cancel
