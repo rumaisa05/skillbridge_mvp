@@ -75,7 +75,8 @@ export default function ChallengeDetail() {
 
   if (!challenge) return <><Nav /><p className="max-w-3xl mx-auto px-4 py-10">Challenge not found.</p></>;
 
-  const user = getAuthUser();
+const user = getAuthUser();
+  const isParticipant = user && user.role === "participant";
   const isOrgOwner = user && (user.role === "organization" || user.role === "admin") && (user.role === "admin" || user.id === challenge.org_id);
 
   const closeChallenge = async () => {
@@ -152,25 +153,37 @@ export default function ChallengeDetail() {
           <p className="text-slate-700 leading-relaxed">{challenge.description}</p>
         </div>
 
-        <div className="mt-8 bg-white border border-slate-200 rounded-2xl p-6">
-          <h2 className="font-bold text-xl mb-4">Submit Your Solution</h2>
-          {message && (
-            <div className={`mb-4 p-3 rounded-lg text-sm ${message.type === "success" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
-              {message.text}
-            </div>
-          )}
-          <form onSubmit={submit} className="space-y-4">
-            <input type="url" placeholder="Repository URL (GitHub, GitLab...)" value={form.repo_url} onChange={(e) => setForm({ ...form, repo_url: e.target.value })}
-              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-            <input type="url" placeholder="Live demo / screenshots URL (optional)" value={form.demo_url} onChange={(e) => setForm({ ...form, demo_url: e.target.value })}
-              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-            <textarea placeholder="Describe your solution: features, tech stack, architecture, what you're proud of..." rows={6} required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-            <button disabled={submitting} className="w-full sm:w-auto bg-brand-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-brand-700 disabled:opacity-50">
-              {submitting ? "Submitting & analyzing..." : "Submit Solution"}
-            </button>
-          </form>
-        </div>
+{isParticipant && (
+          <div className="mt-8 bg-white border border-slate-200 rounded-2xl p-6">
+            <h2 className="font-bold text-xl mb-4">Submit Your Solution</h2>
+            {message && (
+              <div className={`mb-4 p-3 rounded-lg text-sm ${message.type === "success" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
+                {message.text}
+              </div>
+            )}
+            <form onSubmit={submit} className="space-y-4">
+              <input type="url" placeholder="Repository URL (GitHub, GitLab...)" value={form.repo_url} onChange={(e) => setForm({ ...form, repo_url: e.target.value })}
+                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              <input type="url" placeholder="Live demo / screenshots URL (optional)" value={form.demo_url} onChange={(e) => setForm({ ...form, demo_url: e.target.value })}
+                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              <textarea placeholder="Describe your solution: features, tech stack, architecture, what you're proud of..." rows={6} required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              <button disabled={submitting} className="w-full sm:w-auto bg-brand-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-brand-700 disabled:opacity-50">
+                {submitting ? "Submitting & analyzing..." : "Submit Solution"}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {!isParticipant && (
+          <div className="mt-8 bg-white border border-slate-200 rounded-2xl p-6">
+            <h2 className="font-bold text-xl mb-2">Submit Your Solution</h2>
+            <p className="text-sm text-slate-500">
+              Only participants (students/individuals) can submit solutions to challenges.
+              If you are a student or individual, please register or log in as a Participant to submit.
+            </p>
+          </div>
+        )}
       </main>
     </>
   );

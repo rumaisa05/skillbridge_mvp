@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models.user import User
+from ..models.user import User, UserRole
 from ..models.challenge import Challenge
 from ..models.submission import Submission
 from ..models.report import AIReport
@@ -92,6 +92,12 @@ def list_submissions(challenge_id: int | None = None, db: Session = Depends(get_
 @router.post("", response_model=SubmissionOut)
 def submit_solution(data: SubmissionCreate, db: Session = Depends(get_db),
                     current_user: User = Depends(get_current_user)):
+    # Only participants (students/individuals) are allowed to submit solutions.
+    if current_user.role != UserRole.participant.value:
+        raise HTTPException(
+            status_code=403,
+            detail="Only participants (students/individuals) can submit solutions",
+        )
     ch = db.query(Challenge).filter(Challenge.id == data.challenge_id).first()
     if not ch:
         raise HTTPException(status_code=404, detail="Challenge not found")
