@@ -74,5 +74,5 @@ pretty("6. Add to portfolio", r.json())
 r = c.get("/api/portfolio/mine", headers=auth)
 pretty("7. My portfolio", r.json())
 
-print("\n✅ End-to-end flow completed successfully!")
+print("\nEnd-to-end flow completed successfully!")
 
