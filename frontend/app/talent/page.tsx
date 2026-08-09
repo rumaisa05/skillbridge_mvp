@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Nav from "@/components/Nav";
 import { api, getAuthUser } from "@/lib/api";
 
@@ -132,11 +133,9 @@ export default function TalentPage() {
                   )}
 <span>{r.is_winner ? "Organization-verified project" : "AI-evaluated project"}</span>
                 </div>
-                {isOrganization && r.participant_email && (
-                  <a
-                    href={`mailto:${r.participant_email}?subject=${encodeURIComponent(
-                      `Opportunity regarding your project "${r.title}"`
-                    )}`}
+                {isOrganization && (
+                  <Link
+                    href={`/profile/${r.participant_id}`}
                     className="mt-4 inline-flex items-center justify-center gap-2 w-full bg-brand-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-brand-700 transition"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -144,7 +143,7 @@ export default function TalentPage() {
                       <path d="m18 8.118-8 4-8-4V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.118Z" />
                     </svg>
                     Contact
-                  </a>
+                  </Link>
                 )}
               </div>
             ))}
