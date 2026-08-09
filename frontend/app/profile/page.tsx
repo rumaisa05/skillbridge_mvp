@@ -7,7 +7,8 @@ import { api, getAuthUser, setAuth } from "@/lib/api";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const user = getAuthUser();
+  const [user] = useState(getAuthUser());
+  const isParticipant = user?.role === "participant";
   const [form, setForm] = useState({
     name: "",
     bio: "",
@@ -56,13 +57,14 @@ export default function ProfilePage() {
     setSaving(true);
     setMessage(null);
     try {
-      const skillsArray = form.skills.split(",").map(s => s.trim()).filter(Boolean);
-      const { data } = await api.put("/api/users/me", {
-        name: form.name,
-        bio: form.bio,
-        skills: JSON.stringify(skillsArray),
-        github_url: form.github_url,
-      });
+      const payload: any = { name: form.name };
+      if (isParticipant) {
+        const skillsArray = form.skills.split(",").map(s => s.trim()).filter(Boolean);
+        payload.bio = form.bio;
+        payload.skills = JSON.stringify(skillsArray);
+        payload.github_url = form.github_url;
+      }
+      const { data } = await api.put("/api/users/me", payload);
       // Update stored user info
       const newUser = { ...user, ...data };
       const token = localStorage.getItem("skillbridge_token");
@@ -92,7 +94,11 @@ export default function ProfilePage() {
       <Nav />
       <main className="max-w-2xl mx-auto px-4 py-10">
         <h1 className="text-3xl font-extrabold mb-2">Edit Profile</h1>
-        <p className="text-slate-500 mb-8">Update your personal information and skills.</p>
+        <p className="text-slate-500 mb-8">
+          {isParticipant
+            ? "Update your personal information and skills."
+            : "Update your organization information."}
+        </p>
 
         {loading ? (
           <p className="text-slate-500">Loading profile...</p>
@@ -105,7 +111,9 @@ export default function ProfilePage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                {isParticipant ? "Full Name" : "Organization Name"}
+              </label>
               <input
                 type="text"
                 value={form.name}
@@ -115,38 +123,42 @@ export default function ProfilePage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Bio</label>
-              <textarea
-                rows={4}
-                value={form.bio}
-                onChange={(e) => setForm({ ...form, bio: e.target.value })}
-                placeholder="Tell us about yourself, your skills, and what you're working on..."
-                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
-              />
-            </div>
+            {isParticipant && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Bio</label>
+                  <textarea
+                    rows={4}
+                    value={form.bio}
+                    onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                    placeholder="Tell us about yourself, your skills, and what you're working on..."
+                    className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Skills (comma-separated)</label>
-              <input
-                type="text"
-                value={form.skills}
-                onChange={(e) => setForm({ ...form, skills: e.target.value })}
-                placeholder="e.g. Python, React, UI/UX, Data Analysis"
-                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
-              />
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Skills (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={form.skills}
+                    onChange={(e) => setForm({ ...form, skills: e.target.value })}
+                    placeholder="e.g. Python, React, UI/UX, Data Analysis"
+                    className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">GitHub URL</label>
-              <input
-                type="url"
-                value={form.github_url}
-                onChange={(e) => setForm({ ...form, github_url: e.target.value })}
-                placeholder="https://github.com/yourusername"
-                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
-              />
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">GitHub URL</label>
+                  <input
+                    type="url"
+                    value={form.github_url}
+                    onChange={(e) => setForm({ ...form, github_url: e.target.value })}
+                    placeholder="https://github.com/yourusername"
+                    className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+              </>
+            )}
 
             <div className="flex items-center gap-3 pt-2">
               <button

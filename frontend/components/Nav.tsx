@@ -30,7 +30,9 @@ export default function Nav() {
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-4">
           <Link href="/challenges" className="text-sm font-medium text-slate-600 hover:text-brand-600">Challenges</Link>
-          <Link href="/talent" className="text-sm font-medium text-slate-600 hover:text-brand-600">Find Talent</Link>
+          {user && (user.role === "organization" || user.role === "admin") && (
+            <Link href="/talent" className="text-sm font-medium text-slate-600 hover:text-brand-600">Find Talent</Link>
+          )}
           {user ? (
             <>
               {user.role === "participant" && (
@@ -74,7 +76,9 @@ export default function Nav() {
       {menuOpen && (
         <div className="md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-2">
           <Link href="/challenges" onClick={closeMenu} className="block text-sm font-medium text-slate-600 hover:text-brand-600 py-1.5">Challenges</Link>
-          <Link href="/talent" onClick={closeMenu} className="block text-sm font-medium text-slate-600 hover:text-brand-600 py-1.5">Find Talent</Link>
+          {user && (user.role === "organization" || user.role === "admin") && (
+            <Link href="/talent" onClick={closeMenu} className="block text-sm font-medium text-slate-600 hover:text-brand-600 py-1.5">Find Talent</Link>
+          )}
           {user ? (
             <>
               {user.role === "participant" && (

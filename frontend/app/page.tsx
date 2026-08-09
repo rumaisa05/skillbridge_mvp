@@ -5,7 +5,7 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import ScoreRadar from "@/components/RadarChart";
 import Typewriter from "@/components/Typewriter";
-import { api } from "@/lib/api";
+import { api, getAuthUser } from "@/lib/api";
 
 type HeroStat = {
   value: number;
@@ -175,6 +175,7 @@ const TESTIMONIALS = [
 ];
 
 export default function Home() {
+  const [user] = useState(getAuthUser());
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -225,8 +226,8 @@ export default function Home() {
             >
               Find Challenges
             </Link>
-            <Link
-              href="/register?role=organization"
+<Link
+              href={user?.role === "organization" ? "/challenges/new" : "/register?role=organization"}
               className="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-7 py-3.5 rounded-xl font-semibold transition"
             >
               Post a Challenge
