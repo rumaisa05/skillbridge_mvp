@@ -56,9 +56,9 @@ export default function TalentPage() {
     <>
       <Nav />
       <main className="max-w-6xl mx-auto px-4 py-10">
-        <h1 className="text-3xl font-extrabold mb-2">Find AI-Evaluated Talent</h1>
+        <h1 className="text-3xl font-extrabold mb-2">Find Verified Talent</h1>
         <p className="text-slate-500 mb-8">
-          Search for participants by AI-generated review data, challenge outcomes, and portfolio snapshots.
+          Discover challenge winners who have been verified by the organizations that ran the challenges.
         </p>
 
         <form onSubmit={search} className="bg-white border border-slate-200 rounded-2xl p-4 mb-8 flex flex-col md:flex-row gap-3">
@@ -91,7 +91,7 @@ export default function TalentPage() {
         ) : results.length === 0 ? (
           <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
             <p className="text-slate-500">
-              {searched ? "No matching talent found. Try different skills or a lower minimum score." : "No portfolio entries yet."}
+              {searched ? "No matching verified talent found. Try different skills or a lower minimum score." : "No verified portfolio entries yet."}
             </p>
           </div>
         ) : (
@@ -130,7 +130,7 @@ export default function TalentPage() {
                       GitHub
                     </a>
                   )}
-                  <span>AI-evaluated portfolio entry</span>
+                  <span>Organization-verified project</span>
                 </div>
                 {isOrganization && r.participant_email && (
                   <a

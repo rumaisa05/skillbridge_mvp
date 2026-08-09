@@ -143,12 +143,13 @@ def main():
     r = client.get("/api/portfolio/mine", headers=headers)
     check("Get own portfolio", r.status_code == 200 and len(r.json()) >= 1, r.text)
 
-    # 18. Talent search
+    # 18. Talent search - before winner selection, the AI-evaluated (non-verified)
+    # submission must NOT appear as verified talent for employers.
     r = client.get("/api/talent/search", params={"q": "MVP"})
-    check("Talent search by name", r.status_code == 200 and len(r.json()) >= 1, r.text)
+    check("Talent search excludes non-verified entries", r.status_code == 200 and len(r.json()) == 0, r.text)
 
     r = client.get("/api/talent/search", params={"skill": "python"})
-    check("Talent search by skill", r.status_code == 200, r.text)
+    check("Talent search by skill returns none", r.status_code == 200 and len(r.json()) == 0, r.text)
 
     # 19. Get org challenge submissions list (org can see all)
     r = client.get("/api/submissions", params={"challenge_id": challenge_id}, headers=org_headers)
@@ -159,6 +160,10 @@ def main():
         "submission_id": submission_id
     })
     check("Select winner", r.status_code == 200, r.text)
+
+    # 20b. After winner selection, the verified winner NOW appears in talent search.
+    r = client.get("/api/talent/search", params={"q": "MVP"})
+    check("Verified winner appears in talent search", r.status_code == 200 and len(r.json()) >= 1, r.text)
 
     # 21. Close challenge
     r = client.put(f"/api/challenges/{challenge_id}", headers=org_headers, json={

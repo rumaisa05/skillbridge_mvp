@@ -68,5 +68,19 @@ python -m pytest -q
 | POST | /api/challenges | Create challenge (org) |
 | POST | /api/submissions | Submit solution + triggers AI eval |
 | GET | /api/submissions/{id}/report | Get AI skill report |
-| POST | /api/submissions/{id}/portfolio | Create verified portfolio entry |
+| POST | /api/submissions/{id}/portfolio | Create portfolio entry |
 | GET | /api/portfolio/mine | My portfolio entries |
+| GET | /api/talent/search | Search organization-verified winners (is_winner == 1) |
+
+## Organization-verified projects
+
+A portfolio entry only becomes an **organization-verified** project when an
+organization selects its submission as the challenge winner via
+`POST /api/challenges/{challenge_id}/select-winner`. That action sets
+`is_winner = 1` on the corresponding portfolio entry (and resets it to `0` for
+any other portfolio entries in the same challenge).
+
+- Plain AI-evaluated submissions create portfolio entries with `is_winner = 0`.
+- The employer-facing `/api/talent/search` endpoint **only** surfaces
+  organization-verified winners (`is_winner == 1`). Non-winning AI-evaluated
+  submissions are excluded from talent search.

@@ -16,7 +16,7 @@ def _user_payload(role: str, prefix: str):
     }
 
 
-def test_talent_search_filters_by_name_and_skill():
+def test_talent_search_only_returns_verified_winners():
     participant = _user_payload("participant", "part")
     org = _user_payload("organization", "org")
 
@@ -52,7 +52,33 @@ def test_talent_search_filters_by_name_and_skill():
         },
     )
     assert submission.status_code == 200, submission.text
+    submission_id = submission.json()["id"]
 
+    # A plain AI-evaluated submission (NOT selected as a winner) must NOT appear
+    # in the employer talent search — it is not an organization-verified project.
+    by_name = client.get("/api/talent/search", params={"q": "User"})
+    assert by_name.status_code == 200, by_name.text
+    assert not any(
+        item["participant_name"] == participant["name"] for item in by_name.json()
+    ), "Non-winner must not appear in verified talent search"
+
+    by_skill = client.get("/api/talent/search", params={"skill": "python"})
+    assert by_skill.status_code == 200, by_skill.text
+    assert not any(
+        "python" in [s.lower() for s in item["skills_proven"]] and item["participant_name"] == participant["name"]
+        for item in by_skill.json()
+    ), "Non-winner must not appear in verified talent search"
+
+    # Select the submission as the winner -> becomes organization-verified.
+    selected = client.post(
+        f"/api/challenges/{challenge_id}/select-winner",
+        headers=org_headers,
+        params={"submission_id": submission_id, "feedback": "Verified by the organization."},
+    )
+    assert selected.status_code == 200, selected.text
+    assert selected.json()["portfolio_entry_id"] is not None
+
+    # Now the verified winner SHOULD appear in the employer talent search.
     by_name = client.get("/api/talent/search", params={"q": "User"})
     assert by_name.status_code == 200, by_name.text
     assert any(item["participant_name"] == participant["name"] for item in by_name.json())

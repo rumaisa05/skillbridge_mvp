@@ -47,8 +47,16 @@ def search_talent(
     min_score: int = Query(0, ge=0, le=100),
     db: Session = Depends(get_db)
 ):
-    """Search verified portfolios by name, skill, and minimum score for employers."""
-    query = db.query(PortfolioEntry).filter(PortfolioEntry.score >= min_score)
+    """Search organization-verified portfolios by name, skill, and minimum score for employers.
+
+    Only winners (organization-verified, is_winner == 1) are surfaced to employers.
+    Plain AI-evaluated submissions are NOT treated as verified projects and are
+    excluded from this search.
+    """
+    query = db.query(PortfolioEntry).filter(
+        PortfolioEntry.is_winner == 1,
+        PortfolioEntry.score >= min_score,
+    )
     entries = query.order_by(PortfolioEntry.score.desc()).all()
 
     skill_filter = (skills or skill).strip()
