@@ -25,6 +25,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Start backend server
+        working-directory: backend
+        run: |
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --log-level warning &
+          for i in {1..10}; do
+            if curl -s http://127.0.0.1:8000/api/health >/dev/null; then
+              echo "Backend started"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Backend failed to start"
+          exit 1
+
       - name: Run backend tests
         working-directory: backend
         run: |
