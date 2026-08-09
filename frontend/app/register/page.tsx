@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api, setAuth } from "@/lib/api";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialRole = searchParams.get("role") === "organization" ? "organization" : "participant";
+  const initialRole =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("role") === "organization"
+      ? "organization"
+      : "participant";
   const [form, setForm] = useState({ name: "", email: "", password: "", role: initialRole });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
