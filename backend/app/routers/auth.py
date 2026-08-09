@@ -2,7 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models.user import User
+from ..models.challenge import Challenge
+from ..models.notification import Notification
+from ..models.portfolio import PortfolioEntry
+from ..models.submission import Submission
+from ..models.user import User, UserRole
 from ..schemas.user import UserCreate, UserOut, Token, Login, UserUpdate
 from ..security import hash_password, verify_password, create_access_token, get_current_user
 
@@ -59,3 +63,27 @@ def update_me(data: UserUpdate, db: Session = Depends(get_db),
     db.commit()
     db.refresh(current_user)
     return current_user
+
+
+@router.delete("/users/me")
+def delete_me(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Delete the current user's account and related data."""
+    db.query(Notification).filter(Notification.user_id == current_user.id).delete(synchronize_session=False)
+
+    if current_user.role == UserRole.participant.value:
+        db.query(PortfolioEntry).filter(PortfolioEntry.participant_id == current_user.id).delete(synchronize_session=False)
+        submissions = db.query(Submission).filter(Submission.participant_id == current_user.id).all()
+        for submission in submissions:
+            db.delete(submission)
+
+    if current_user.role == UserRole.organization.value:
+        challenges = db.query(Challenge).filter(Challenge.org_id == current_user.id).all()
+        challenge_ids = [challenge.id for challenge in challenges]
+        if challenge_ids:
+            db.query(PortfolioEntry).filter(PortfolioEntry.challenge_id.in_(challenge_ids)).delete(synchronize_session=False)
+        for challenge in challenges:
+            db.delete(challenge)
+
+    db.delete(current_user)
+    db.commit()
+    return {"detail": "Account deleted"}

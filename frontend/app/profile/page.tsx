@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
-import { api, getAuthUser, setAuth } from "@/lib/api";
+import { api, clearAuth, getAuthUser, setAuth } from "@/lib/api";
 
 const ORG_TYPES = ["school", "ngo", "hospital", "startup", "company", "other"];
 
@@ -111,6 +111,23 @@ export default function ProfilePage() {
     setForm(originalForm);
     setMessage(null);
     router.push("/profile");
+  };
+
+  const deleteAccount = async () => {
+    if (!window.confirm("Delete your account? This cannot be undone.")) {
+      return;
+    }
+    setSaving(true);
+    setMessage(null);
+    try {
+      await api.delete("/api/users/me");
+      clearAuth();
+      router.push("/login");
+    } catch (err: any) {
+      setMessage({ type: "error", text: err.response?.data?.detail || "Failed to delete account" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!user) {
@@ -223,20 +240,30 @@ export default function ProfilePage() {
               </>
             )}
 
-            <div className="flex items-center gap-3 pt-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className="bg-brand-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-brand-700 disabled:opacity-50"
-              >
-                {saving ? "Saving..." : "Save Changes"}
-              </button>
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-brand-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-brand-700 disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Save Changes"}
+                </button>
+                <button
+                  type="button"
+                  onClick={cancel}
+                  className="text-slate-500 hover:text-slate-700 font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
               <button
                 type="button"
-                onClick={cancel}
-                className="text-slate-500 hover:text-slate-700 font-medium"
+                onClick={deleteAccount}
+                disabled={saving}
+                className="text-red-600 hover:text-red-800 font-medium"
               >
-                Cancel
+                Delete account
               </button>
             </div>
           </form>
