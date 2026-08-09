@@ -17,6 +17,8 @@ class UserOut(BaseModel):
     bio: str = ""
     skills: str = "[]"
     github_url: str = ""
+    org_type: str = ""
+    website: str = ""
 
     class Config:
         from_attributes = True
@@ -28,6 +30,8 @@ class UserUpdate(BaseModel):
     skills: str | None = None
     github_url: str | None = None
     avatar_url: str | None = None
+    org_type: str | None = None
+    website: str | None = None
 
 
 class Login(BaseModel):

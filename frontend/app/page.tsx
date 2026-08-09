@@ -178,13 +178,27 @@ export default function Home() {
   const [user] = useState(getAuthUser());
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadChallenges = () => {
+    setLoading(true);
+    setError(null);
     api
       .get("/api/challenges")
       .then(({ data }) => setChallenges(data.slice(0, 3)))
-      .catch(() => setChallenges([]))
+      .catch((err: any) => {
+        setChallenges([]);
+        setError(
+          err?.response?.data?.detail ||
+            "Could not load challenges. Please check your connection and try again."
+        );
+      })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadChallenges();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -240,17 +254,13 @@ export default function Home() {
                 className="stat-card bg-white/5 border border-white/10 rounded-xl py-4 px-3"
                 style={{ animationDelay: `${index * 120}ms` }}
               >
-                <p className="text-2xl font-extrabold text-white">
+<p className="text-2xl font-extrabold text-white">
                   <AnimatedCounter value={stat.value} suffix={stat.suffix ?? ""} />
                 </p>
                 <p className="text-slate-400 mt-1">{stat.label}</p>
-                <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-indigo-300/80">Demo</p>
               </div>
             ))}
           </div>
-          <p className="mt-4 text-[10px] font-medium uppercase tracking-[0.24em] text-slate-400">
-            Example values shown for illustration
-          </p>
         </div>
       </section>
 
@@ -283,13 +293,29 @@ export default function Home() {
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
             <div>
               <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest animate-fade-in-up">Featured challenges</p>
-              <h2 className="text-3xl md:text-4xl font-extrabold mt-2 animate-fade-in-up delay-100ms">Real problems, real impact</h2>
+<h2 className="text-3xl md:text-4xl font-extrabold mt-2 animate-fade-in-up delay-100ms">Real problems, real impact</h2>
             </div>
             <Link href="/challenges" className="text-indigo-600 font-semibold hover:underline animate-fade-in-up delay-200ms">
               View all challenges
             </Link>
           </div>
           {loading && <p className="text-slate-500">Loading challenges...</p>}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <p className="font-semibold text-red-700">Could not load challenges</p>
+                <p className="text-sm text-red-600 mt-1">{error}</p>
+              </div>
+              <button
+                onClick={loadChallenges}
+                className="shrink-0 bg-red-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-red-700 transition"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
           <div className="grid md:grid-cols-3 gap-6">
             {challenges.map((c) => (
               <Link
@@ -556,9 +582,9 @@ export default function Home() {
             </div>
             <div>
               <p className="font-semibold text-white mb-3">Platform</p>
-              <ul className="space-y-2 text-sm">
+<ul className="space-y-2 text-sm">
                 <li><Link href="/challenges" className="hover:text-white">Find Challenges</Link></li>
-                <li><Link href="/register?role=organization" className="hover:text-white">Post a Challenge</Link></li>
+                <li><Link href={user?.role === "organization" ? "/challenges/new" : "/register?role=organization"} className="hover:text-white">Post a Challenge</Link></li>
                 <li><Link href="/portfolio" className="hover:text-white">Portfolio Snapshots</Link></li>
               </ul>
             </div>

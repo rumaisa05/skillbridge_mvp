@@ -130,7 +130,7 @@ export default function TalentPage() {
                       GitHub
                     </a>
                   )}
-                  <span>Organization-verified project</span>
+<span>{r.is_winner ? "Organization-verified project" : "AI-evaluated project"}</span>
                 </div>
                 {isOrganization && r.participant_email && (
                   <a

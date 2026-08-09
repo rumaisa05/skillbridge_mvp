@@ -47,14 +47,13 @@ def search_talent(
     min_score: int = Query(0, ge=0, le=100),
     db: Session = Depends(get_db)
 ):
-    """Search organization-verified portfolios by name, skill, and minimum score for employers.
+    """Search portfolios by name, skill, and minimum score for employers.
 
-    Only winners (organization-verified, is_winner == 1) are surfaced to employers.
-    Plain AI-evaluated submissions are NOT treated as verified projects and are
-    excluded from this search.
+    Returns all matching portfolio entries regardless of winner status. Winning
+    entries carry is_winner=1 so the frontend can badge them as organization-verified,
+    while non-winning but AI-evaluated candidates are still surfaced.
     """
     query = db.query(PortfolioEntry).filter(
-        PortfolioEntry.is_winner == 1,
         PortfolioEntry.score >= min_score,
     )
     entries = query.order_by(PortfolioEntry.score.desc()).all()

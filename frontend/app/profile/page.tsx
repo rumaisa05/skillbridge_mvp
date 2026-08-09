@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { api, getAuthUser, setAuth } from "@/lib/api";
 
+const ORG_TYPES = ["school", "ngo", "hospital", "startup", "company", "other"];
+
 export default function ProfilePage() {
   const router = useRouter();
   const [user] = useState(getAuthUser());
@@ -14,12 +16,16 @@ export default function ProfilePage() {
     bio: "",
     skills: "",
     github_url: "",
+    org_type: "",
+    website: "",
   });
   const [originalForm, setOriginalForm] = useState({
     name: "",
     bio: "",
     skills: "",
     github_url: "",
+    org_type: "",
+    website: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -48,6 +54,8 @@ export default function ProfilePage() {
           bio: data.bio || "",
           skills: skills || "",
           github_url: data.github_url || "",
+          org_type: data.org_type || "",
+          website: data.website || "",
         };
         setForm(loaded);
         setOriginalForm(loaded);
@@ -71,10 +79,22 @@ export default function ProfilePage() {
         payload.bio = form.bio;
         payload.skills = JSON.stringify(skillsArray);
         payload.github_url = form.github_url;
+      } else {
+        payload.org_type = form.org_type;
+        payload.website = form.website;
       }
       const { data } = await api.put("/api/users/me", payload);
-      // Update stored user info
-      const newUser = { ...user, ...data };
+      // Normalize skills to an array before storing in localStorage so it stays
+      // consistent with what other components expect from getAuthUser().skills.
+      const normalized = { ...data };
+      if (typeof normalized.skills === "string") {
+        try {
+          normalized.skills = JSON.parse(normalized.skills || "[]");
+        } catch {
+          normalized.skills = [];
+        }
+      }
+      const newUser = { ...user, ...normalized };
       const token = localStorage.getItem("skillbridge_token");
       if (token) setAuth(token, newUser);
       setMessage({ type: "success", text: "Profile updated successfully!" });
@@ -139,7 +159,7 @@ export default function ProfilePage() {
               />
             </div>
 
-            {isParticipant && (
+            {isParticipant ? (
               <>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Bio</label>
@@ -170,6 +190,33 @@ export default function ProfilePage() {
                     value={form.github_url}
                     onChange={(e) => setForm({ ...form, github_url: e.target.value })}
                     placeholder="https://github.com/yourusername"
+                    className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Organization Type</label>
+                  <select
+                    value={form.org_type}
+                    onChange={(e) => setForm({ ...form, org_type: e.target.value })}
+                    className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 capitalize"
+                  >
+                    <option value="">Select type...</option>
+                    {ORG_TYPES.map((t) => (
+                      <option key={t} value={t} className="capitalize">{t}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Website</label>
+                  <input
+                    type="url"
+                    value={form.website}
+                    onChange={(e) => setForm({ ...form, website: e.target.value })}
+                    placeholder="https://yourorganization.com"
                     className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                 </div>

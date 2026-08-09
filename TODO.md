@@ -1,27 +1,25 @@
-# Task: Make Winner's project an "organization-verified" project
+# Task TODO
 
-## Goal
-Add an `is_winner` flag to the `PortfolioEntry` model (derived from `Submission.is_winner`),
-expose it via the API (`PortfolioOut` + talent search), and display an "Organization Verified"
-badge on the frontend for winning entries.
+1. ✅ Fix footer "Post a Challenge" link in `frontend/app/page.tsx` (conditional on role).
+2. ✅ Broaden talent search (`backend/app/routers/portfolio.py`) to include non-winning AI-evaluated candidates; update docstring. Update `frontend/app/talent/page.tsx` footer text based on `is_winner`.
+3. ✅ Add org-specific profile fields (`org_type`, `website`):
+   - ✅ `backend/app/models/user.py`
+   - ✅ new migration `0003_add_org_profile_fields.py`
+   - ✅ `backend/app/schemas/user.py` (UserOut/UserUpdate)
+   - ✅ `frontend/app/profile/page.tsx` org-appropriate fields
+4. ✅ Normalize skills shape in localStorage in `frontend/app/profile/page.tsx` save().
+5. ✅ Remove "Demo" labels from homepage stat counters in `frontend/app/page.tsx`.
+6. ✅ Rebuild `backend/app/seed.py` with realistic interconnected demo data:
+   - ✅ 5 organizations (ngo/school/hospital/startup/company) with org_type + website
+   - ✅ 8 participants with distinct skills/bios, incl. Richard (multi-submission)
+   - ✅ 10 challenges (2 per org), each with 3 submissions
+   - ✅ All 30 submissions run through real `evaluate_submission()` → real AIReports
+   - ✅ 5 winners selected (one challenge per org) via `_select_winner` (replicates `select_winner()`)
+   - ✅ Mix: 5 Organization-Verified winners + 25 AI-Evaluated non-winners
+   - ✅ All accounts marked `[Demo account]` + `*.skillbridge.test` emails
+   - ✅ Verified: challenges page populated, talent search shows verified + AI-evaluated, Richard has both winning & non-winning portfolio entries
 
-## Steps
-- [x] 1. Add `is_winner` column to `PortfolioEntry` model (backend/app/models/portfolio.py)
-- [x] 2. Add `is_winner` column to `portfolio_entries` migration (backend/migrations/versions/0001_initial_schema.py)
-- [x] 3. Add `is_winner` field to `PortfolioOut` schema (backend/app/schemas/portfolio.py)
-- [x] 4. Sync `is_winner` from submission in `_ensure_portfolio_entry` (backend/app/routers/submissions.py)
-- [x] 5. Sync `is_winner` on portfolio entry in `select_winner` (backend/app/routers/challenges.py)
-- [x] 6. Expose `is_winner` in talent search results (backend/app/routers/portfolio.py)
-- [x] 7. Display "Organization Verified" badge on portfolio page (frontend/app/portfolio/page.tsx)
-- [x] 8. Display "Organization Verified" badge on talent page (frontend/app/talent/page.tsx)
-- [x] 9. Run backend tests to verify nothing breaks
-
-## Follow-up: Organization Contact option on Find Talent
-- [x] 10. Add "Contact" mailto button on talent cards, shown only to organization users (frontend/app/talent/page.tsx)
-
-## Follow-up: UX & Role-based fixes
-- [x] 11. Fix profile editing not persisting (use stable user ref so form isn't reset on every render) (frontend/app/profile/page.tsx)
-- [x] 12. Restrict student-style profile fields (bio, skills, github) to participants only (frontend/app/profile/page.tsx)
-- [x] 13. Hide "Find Talent" for non-organization/admin users (frontend/components/Nav.tsx)
-- [x] 14. Make "Post a Challenge" on homepage route logged-in orgs to /challenges/new (frontend/app/page.tsx)
-- [x] 15. Preselect "Organization" role on register when arriving via ?role=organization (frontend/app/register/page.tsx)
+Follow-up:
+- ✅ Backend tests: 6 passed (pytest --ignore=test_flow.py)
+- ✅ Frontend typecheck: npx tsc --noEmit (exit 0)
+- ✅ Local DB reset + reseeded (skillbridge.db) with correct winner/non-winner mix

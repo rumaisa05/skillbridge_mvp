@@ -23,6 +23,7 @@ class User(Base):
     skills = Column(Text, default="[]")  # JSON array string
     github_url = Column(String, default="")
     avatar_url = Column(String, default="")
+    org_type = Column(String, default="")  # school | ngo | hospital | startup | company | other
+    website = Column(String, default="")
 
     notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
-

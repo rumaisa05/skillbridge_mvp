@@ -54,20 +54,22 @@ def test_talent_search_only_returns_verified_winners():
     assert submission.status_code == 200, submission.text
     submission_id = submission.json()["id"]
 
-    # A plain AI-evaluated submission (NOT selected as a winner) must NOT appear
-    # in the employer talent search — it is not an organization-verified project.
+    # A plain AI-evaluated submission (NOT selected as a winner) SHOULD appear
+    # in the employer talent search as an AI-evaluated candidate (is_winner == 0).
     by_name = client.get("/api/talent/search", params={"q": "User"})
     assert by_name.status_code == 200, by_name.text
-    assert not any(
-        item["participant_name"] == participant["name"] for item in by_name.json()
-    ), "Non-winner must not appear in verified talent search"
+    non_winner = next(
+        (item for item in by_name.json() if item["participant_name"] == participant["name"]), None
+    )
+    assert non_winner is not None, "AI-evaluated non-winner should appear in talent search"
+    assert non_winner["is_winner"] == 0, "Non-winner should carry is_winner == 0"
 
     by_skill = client.get("/api/talent/search", params={"skill": "python"})
     assert by_skill.status_code == 200, by_skill.text
-    assert not any(
+    assert any(
         "python" in [s.lower() for s in item["skills_proven"]] and item["participant_name"] == participant["name"]
         for item in by_skill.json()
-    ), "Non-winner must not appear in verified talent search"
+    ), "AI-evaluated non-winner should appear in skill search"
 
     # Select the submission as the winner -> becomes organization-verified.
     selected = client.post(
@@ -78,10 +80,14 @@ def test_talent_search_only_returns_verified_winners():
     assert selected.status_code == 200, selected.text
     assert selected.json()["portfolio_entry_id"] is not None
 
-    # Now the verified winner SHOULD appear in the employer talent search.
+    # Now the verified winner SHOULD appear with is_winner == 1.
     by_name = client.get("/api/talent/search", params={"q": "User"})
     assert by_name.status_code == 200, by_name.text
-    assert any(item["participant_name"] == participant["name"] for item in by_name.json())
+    winner = next(
+        (item for item in by_name.json() if item["participant_name"] == participant["name"]), None
+    )
+    assert winner is not None
+    assert winner["is_winner"] == 1, "Winner should carry is_winner == 1"
 
     by_skill = client.get("/api/talent/search", params={"skill": "python"})
     assert by_skill.status_code == 200, by_skill.text

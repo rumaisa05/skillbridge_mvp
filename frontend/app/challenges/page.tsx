@@ -38,9 +38,11 @@ export default function ChallengesPage() {
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadChallenges = () => {
     setLoading(true);
+    setError(null);
     const params: Record<string, string> = {};
     if (search) params.search = search;
     if (category) params.category = category;
@@ -55,8 +57,19 @@ export default function ChallengesPage() {
         setChallenges(data);
         setHasMore(data.length === 20);
       })
-      .catch(() => setChallenges([]))
+      .catch((err: any) => {
+        setChallenges([]);
+        setError(
+          err?.response?.data?.detail ||
+            "Could not load challenges. Please check your connection and try again."
+        );
+      })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadChallenges();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, category, difficulty, status, page]);
 
   const resetPage = () => setPage(1);
@@ -101,6 +114,21 @@ export default function ChallengesPage() {
 
         {loading && <p className="text-slate-500">Loading challenges...</p>}
 
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="font-semibold text-red-700">Could not load challenges</p>
+              <p className="text-sm text-red-600 mt-1">{error}</p>
+            </div>
+            <button
+              onClick={loadChallenges}
+              className="shrink-0 bg-red-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-red-700 transition"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {challenges.map((c) => (
             <Link key={c.id} href={`/challenges/${c.id}`} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-brand-300 transition">
@@ -118,12 +146,12 @@ export default function ChallengesPage() {
           ))}
         </div>
 
-        {!loading && challenges.length === 0 && (
+        {!loading && !error && challenges.length === 0 && (
           <p className="text-slate-500 text-center py-16">No challenges found. Try adjusting your filters.</p>
         )}
 
         {/* Pagination */}
-        {!loading && challenges.length > 0 && (
+        {!loading && !error && challenges.length > 0 && (
           <div className="flex justify-center gap-3 mt-10">
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
