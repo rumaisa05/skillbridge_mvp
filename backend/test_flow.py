@@ -3,9 +3,8 @@ import json
 import random
 import string
 
-import httpx
 import pytest
-from httpx import ASGITransport
+from fastapi.testclient import TestClient
 
 from app.main import app
 
@@ -20,9 +19,8 @@ def pretty(label, obj):
 
 @pytest.fixture
 def client():
-    transport = ASGITransport(app=app)
-    with httpx.Client(transport=transport, base_url="http://testserver", timeout=30) as c:
-        yield c
+    with TestClient(app) as client:
+        yield client
 
 
 @pytest.mark.integration
@@ -36,9 +34,10 @@ def test_end_to_end_flow(client):
     r = client.get("/api/challenges")
     assert r.status_code == 200, f"Challenges endpoint failed: {r.text}"
     challenges = r.json()
-    pretty("2. Challenges listed", f"{len(challenges)} open challenges")
-    assert challenges, "No challenges available — something is wrong."
-    challenge = challenges[1] if len(challenges) > 1 else challenges[0]
+    pretty("2. Challenges listed", f"{len(challenges)} challenges returned")
+    open_challenges = [c for c in challenges if c.get("status") == "open"]
+    assert open_challenges, "No open challenges available — cannot submit a solution."
+    challenge = open_challenges[0]
 
     # 3) Register participant
     suffix = "".join(random.choices(string.ascii_lowercase, k=6))

@@ -7,7 +7,7 @@ import json
 import sys
 import httpx
 
-BASE = "http://127.0.0.1:8001"
+BASE = "http://127.0.0.1:8000"
 passed = 0
 failed = 0
 
