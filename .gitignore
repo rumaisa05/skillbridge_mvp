@@ -19,3 +19,11 @@ skillbridge.db
 # TypeScript
 *.tsbuildinfo
 backend/test.db
+backend/test.db
+backend/*.db
+**/__pycache__/
+**/*.pyc
+backend/.pytest_cache/
+frontend/.next/
+frontend/node_modules/
+.env
