@@ -112,7 +112,7 @@ export default function ChallengesPage() {
               <p className="text-slate-600 text-sm mb-4 line-clamp-3">{c.description}</p>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-500">by {c.org_name || "Organization"}</span>
-                {c.reward && <span className="text-brand-600 font-medium">🏆 {c.reward}</span>}
+                {c.reward && <span className="text-brand-600 font-medium">{c.reward}</span>}
               </div>
             </Link>
           ))}

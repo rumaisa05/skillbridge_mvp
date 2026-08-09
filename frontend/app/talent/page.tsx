@@ -90,7 +90,6 @@ export default function TalentPage() {
           <p className="text-slate-500">Searching talent...</p>
         ) : results.length === 0 ? (
           <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-            <div className="text-4xl mb-3">🔍</div>
             <p className="text-slate-500">
               {searched ? "No matching talent found. Try different skills or a lower minimum score." : "No portfolio entries yet."}
             </p>
@@ -110,7 +109,7 @@ export default function TalentPage() {
                 </div>
                 {r.is_winner ? (
                   <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full mb-3">
-                    ✓ Organization Verified
+                    Organization Verified
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full mb-3">

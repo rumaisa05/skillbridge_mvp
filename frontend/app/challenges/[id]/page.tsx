@@ -75,7 +75,7 @@ export default function ChallengeDetail() {
 
   if (!challenge) return <><Nav /><p className="max-w-3xl mx-auto px-4 py-10">Challenge not found.</p></>;
 
-const user = getAuthUser();
+  const user = getAuthUser();
   const isParticipant = user && user.role === "participant";
   const isOrgOwner = user && (user.role === "organization" || user.role === "admin") && (user.role === "admin" || user.id === challenge.org_id);
 
@@ -116,7 +116,7 @@ const user = getAuthUser();
             <span className="text-sm text-brand-600 capitalize">{challenge.category} · {challenge.difficulty}</span>
             <h1 className="text-3xl font-extrabold mt-2">{challenge.title}</h1>
             <p className="text-slate-500 mt-1">by {challenge.org_name}</p>
-            {challenge.reward && <div className="mt-3 inline-block bg-amber-50 text-amber-700 text-sm font-medium px-3 py-1.5 rounded-lg">🏆 {challenge.reward}</div>}
+            {challenge.reward && <div className="mt-3 inline-block bg-amber-50 text-amber-700 text-sm font-medium px-3 py-1.5 rounded-lg">{challenge.reward}</div>}
             {challenge.status !== "open" && (
               <span className="mt-3 inline-block bg-slate-100 text-slate-600 text-xs font-medium px-3 py-1 rounded-full ml-2 capitalize">{challenge.status}</span>
             )}
@@ -153,7 +153,7 @@ const user = getAuthUser();
           <p className="text-slate-700 leading-relaxed">{challenge.description}</p>
         </div>
 
-{isParticipant && (
+        {isParticipant && (
           <div className="mt-8 bg-white border border-slate-200 rounded-2xl p-6">
             <h2 className="font-bold text-xl mb-4">Submit Your Solution</h2>
             {message && (

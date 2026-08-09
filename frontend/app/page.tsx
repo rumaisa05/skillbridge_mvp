@@ -191,7 +191,7 @@ export default function Home() {
     <>
       <Nav />
 
-      {/* ── HERO ─────────────────────────────────────────── */}
+      {/* HERO */}
       <section className="relative overflow-hidden bg-slate-950 text-white">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,#6366f1,transparent_50%),radial-gradient(circle_at_bottom_left,#2563eb,transparent_50%)]" />
         <div className="relative max-w-6xl mx-auto px-4 py-24 md:py-32 text-center">
@@ -215,7 +215,7 @@ export default function Home() {
             />
           </h1>
           <p className="mt-6 text-lg md:text-xl text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-200ms">
-            Break the “no experience, no job” cycle. Solve real challenges from real
+            Break the "no experience, no job" cycle. Solve real challenges from real
             organizations, get an AI-generated evaluation report, and build a portfolio
             snapshot employers can review.
           </p>
@@ -226,7 +226,7 @@ export default function Home() {
             >
               Find Challenges
             </Link>
-<Link
+            <Link
               href={user?.role === "organization" ? "/challenges/new" : "/register?role=organization"}
               className="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-7 py-3.5 rounded-xl font-semibold transition"
             >
@@ -254,7 +254,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ─────────────────────────────────── */}
+      {/* HOW IT WORKS */}
       <section className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest animate-fade-in-up">How it works</p>
@@ -268,7 +268,7 @@ export default function Home() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {STEPS.map((s) => (
             <div key={s.step} className="relative bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg transition shadow-sm">
-<span className="absolute top-4 right-5 text-4xl font-extrabold text-slate-100">{s.step}</span>
+              <span className="absolute top-4 right-5 text-4xl font-extrabold text-slate-100">{s.step}</span>
               <div className="text-indigo-600 mb-4">{ICONS[s.icon]}</div>
               <h3 className="font-bold text-lg mb-2">{s.title}</h3>
               <p className="text-slate-600 text-sm leading-relaxed">{s.desc}</p>
@@ -277,7 +277,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── FEATURED CHALLENGES ───────────────────────────── */}
+      {/* FEATURED CHALLENGES */}
       <section className="bg-slate-50 border-y border-slate-200 py-20">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
@@ -307,7 +307,7 @@ export default function Home() {
                 <p className="text-slate-600 text-sm mb-4 line-clamp-3">{c.description}</p>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">by {c.org_name || "Organization"}</span>
-{c.reward && <span className="text-indigo-600 font-medium">{c.reward}</span>}
+                  {c.reward && <span className="text-indigo-600 font-medium">{c.reward}</span>}
                 </div>
               </Link>
             ))}
@@ -318,7 +318,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── AI EVALUATION ───────────────────────────────── */}
+      {/* AI EVALUATION */}
       <section className="max-w-6xl mx-auto px-4 py-20 grid md:grid-cols-2 gap-12 items-center">
         <div>
           <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest">AI evaluation</p>
@@ -358,7 +358,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── AI REPORT PREVIEW ─────────────────────────────── */}
+      {/* AI REPORT PREVIEW */}
       <section className="bg-gradient-to-br from-indigo-600 to-blue-600 text-white py-20">
         <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -401,14 +401,14 @@ export default function Home() {
               </div>
             ))}
             <div className="mt-4 bg-slate-50 rounded-xl p-4 text-sm text-slate-600">
-<p className="font-semibold text-slate-800 mb-1">Recommendation</p>
+              <p className="font-semibold text-slate-800 mb-1">Recommendation</p>
               Strengthen security practices by reviewing OWASP Top 10 and adding input sanitization.
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── PORTFOLIO SHOWCASE ───────────────────────────── */}
+      {/* PORTFOLIO SHOWCASE */}
       <section className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest animate-fade-in-up">Portfolio snapshots</p>
@@ -447,7 +447,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── EMPLOYER SECTION ──────────────────────────────── */}
+      {/* EMPLOYER SECTION */}
       <section className="bg-slate-950 text-white py-20">
         <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -497,7 +497,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ──────────────────────────────────── */}
+      {/* TESTIMONIALS */}
       <section className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest animate-fade-in-up">Testimonials</p>
@@ -507,7 +507,7 @@ export default function Home() {
           {TESTIMONIALS.map((t) => (
             <div key={t.name} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
               <div className="text-amber-400 mb-3">*****</div>
-              <p className="text-slate-600 leading-relaxed mb-5">“{t.quote}”</p>
+              <p className="text-slate-600 leading-relaxed mb-5">&ldquo;{t.quote}&rdquo;</p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
                   {t.avatar}
@@ -522,7 +522,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── CTA ───────────────────────────────────────────── */}
+      {/* CTA */}
       <section className="max-w-6xl mx-auto px-4 pb-20">
         <div className="bg-gradient-to-br from-indigo-600 to-blue-600 rounded-3xl p-10 md:p-16 text-center text-white shadow-2xl">
           <h2 className="text-3xl md:text-4xl font-extrabold animate-fade-in-up">Ready to prove what you can build?</h2>
@@ -541,7 +541,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── FOOTER ────────────────────────────────────────── */}
+      {/* FOOTER */}
       <footer className="bg-slate-950 text-slate-400 py-12">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
@@ -572,14 +572,14 @@ export default function Home() {
             </div>
             <div>
               <p className="font-semibold text-white mb-3">For Employers</p>
-<ul className="space-y-2 text-sm">
+              <ul className="space-y-2 text-sm">
                 <li><Link href="/register?role=organization" className="hover:text-white">Hire Talent</Link></li>
                 <li><Link href="/register?role=organization" className="hover:text-white">Partner With Us</Link></li>
               </ul>
             </div>
           </div>
           <div className="mt-10 pt-6 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
-            <p>© {new Date().getFullYear()} SkillBridge. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} SkillBridge. All rights reserved.</p>
             <div className="flex gap-6">
               <span className="hover:text-white cursor-pointer">Privacy</span>
               <span className="hover:text-white cursor-pointer">Terms</span>

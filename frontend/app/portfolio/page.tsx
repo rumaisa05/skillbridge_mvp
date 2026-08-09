@@ -45,7 +45,6 @@ export default function PortfolioPage() {
           <p className="text-slate-500">Loading...</p>
         ) : entries.length === 0 ? (
           <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-            <div className="text-4xl mb-3">📁</div>
             <p className="text-slate-500 mb-4">You haven&apos;t added any portfolio entries yet.</p>
             <p className="text-sm text-slate-400">Submit a solution to a challenge and it will appear here.</p>
           </div>
@@ -61,7 +60,7 @@ export default function PortfolioPage() {
                   </div>
                   {e.is_winner ? (
                     <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full mb-2">
-                      ✓ Organization Verified
+                      Organization Verified
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full mb-2">

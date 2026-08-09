@@ -74,7 +74,7 @@ export default function SubmissionsPage() {
             <p className="text-slate-500 mt-1">Review solutions and select a winner.</p>
           </div>
           <Link href={`/challenges/${id}`} className="text-brand-600 font-medium text-sm hover:underline">
-            ← Back to challenge
+            &larr; Back to challenge
           </Link>
         </div>
 
@@ -88,7 +88,6 @@ export default function SubmissionsPage() {
           <p className="text-slate-500">Loading submissions...</p>
         ) : submissions.length === 0 ? (
           <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-            <div className="text-4xl mb-3">📭</div>
             <p className="text-slate-500">No submissions yet for this challenge.</p>
           </div>
         ) : (
@@ -103,7 +102,7 @@ export default function SubmissionsPage() {
                     </p>
                   </div>
                   {s.is_winner ? (
-                    <span className="bg-emerald-100 text-emerald-700 text-xs font-medium px-3 py-1 rounded-full">🏆 Organizer Winner</span>
+                    <span className="bg-emerald-100 text-emerald-700 text-xs font-medium px-3 py-1 rounded-full">Organizer Winner</span>
                   ) : (
                     <span className="bg-slate-100 text-slate-600 text-xs font-medium px-3 py-1 rounded-full">Submitted</span>
                   )}
@@ -114,17 +113,17 @@ export default function SubmissionsPage() {
                 <div className="flex flex-wrap gap-2 mb-4">
                   {s.repo_url && (
                     <a href={s.repo_url} target="_blank" rel="noopener noreferrer" className="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg font-medium hover:bg-blue-100">
-                      🔗 Repository
+                      Repository
                     </a>
                   )}
                   {s.demo_url && (
                     <a href={s.demo_url} target="_blank" rel="noopener noreferrer" className="text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg font-medium hover:bg-purple-100">
-                      🚀 Live Demo
+                      Live Demo
                     </a>
                   )}
                   {s.docs_url && (
                     <a href={s.docs_url} target="_blank" rel="noopener noreferrer" className="text-xs bg-amber-50 text-amber-700 px-3 py-1.5 rounded-lg font-medium hover:bg-amber-100">
-                      📄 Docs
+                      Docs
                     </a>
                   )}
                 </div>
