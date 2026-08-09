@@ -12,6 +12,7 @@ class PortfolioOut(BaseModel):
     skills_proven: str
     score: int
     organization_feedback: str
+    is_winner: int = 0
     created_at: datetime
     challenge_title: str = ""
     participant_name: str = ""

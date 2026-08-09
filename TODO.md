@@ -1,14 +1,17 @@
-# TODO - Remove Employer Role & Enforce Submission Visibility
+# Task: Make Winner's project an "organization-verified" project
+
+## Goal
+Add an `is_winner` flag to the `PortfolioEntry` model (derived from `Submission.is_winner`),
+expose it via the API (`PortfolioOut` + talent search), and display an "Organization Verified"
+badge on the frontend for winning entries.
 
 ## Steps
-- [x] Data check: found 1 employer test user (id 4, emp_dhfil@example.com), deleted it
-- [x] Confirm plan with user
-- [x] `models/user.py`: Remove `employer` from `UserRole` enum
-- [x] `schemas/user.py`: Restrict `UserCreate.role` to `participant`/`organization`
-- [x] `routers/submissions.py`:
-  - `list_submissions`: participant → own; org → own challenges; admin → all
-  - `get_report`: 403 unless admin / submitting participant / challenge-owning org
-- [x] `register/page.tsx`: Remove employer from `roleMeta`
-- [x] `page.tsx`: Update footer "Hire Talent" link to `/register?role=organization`
-- [ ] Run existing test suite (test_flow.py, test_mvp_endpoints.py, etc.)
-- [ ] Report pass/fail results
+- [x] 1. Add `is_winner` column to `PortfolioEntry` model (backend/app/models/portfolio.py)
+- [x] 2. Add `is_winner` column to `portfolio_entries` migration (backend/migrations/versions/0001_initial_schema.py)
+- [x] 3. Add `is_winner` field to `PortfolioOut` schema (backend/app/schemas/portfolio.py)
+- [x] 4. Sync `is_winner` from submission in `_ensure_portfolio_entry` (backend/app/routers/submissions.py)
+- [x] 5. Sync `is_winner` on portfolio entry in `select_winner` (backend/app/routers/challenges.py)
+- [x] 6. Expose `is_winner` in talent search results (backend/app/routers/portfolio.py)
+- [x] 7. Display "Organization Verified" badge on portfolio page (frontend/app/portfolio/page.tsx)
+- [x] 8. Display "Organization Verified" badge on talent page (frontend/app/talent/page.tsx)
+- [x] 9. Run backend tests to verify nothing breaks

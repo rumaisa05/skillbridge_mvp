@@ -11,6 +11,7 @@ type Entry = {
   score: number;
   skills_proven: string;
   challenge_title: string;
+  is_winner: number;
 };
 
 export default function PortfolioPage() {
@@ -58,6 +59,15 @@ export default function PortfolioPage() {
                     <h3 className="font-bold text-lg">{e.title}</h3>
                     <span className={`text-lg font-extrabold ${e.score >= 75 ? "text-emerald-600" : "text-amber-600"}`}>{e.score}</span>
                   </div>
+                  {e.is_winner ? (
+                    <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full mb-2">
+                      ✓ Organization Verified
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full mb-2">
+                      AI-Evaluated
+                    </span>
+                  )}
                   <p className="text-xs text-slate-400 mb-2">Challenge: {e.challenge_title}</p>
                   <p className="text-slate-600 text-sm mb-4 line-clamp-3">{e.description}</p>
                   <div className="flex flex-wrap gap-2">

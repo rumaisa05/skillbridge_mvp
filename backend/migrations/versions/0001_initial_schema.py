@@ -1,7 +1,7 @@
 """initial schema
 
 Revision ID: 0001_initial_schema
-Revises: 
+Revises:
 Create Date: 2026-08-08 00:00:00
 """
 
@@ -78,6 +78,7 @@ def upgrade():
         sa.Column('skills_proven', sa.Text(), nullable=True, server_default='[]'),
         sa.Column('score', sa.Integer(), nullable=True, server_default='0'),
         sa.Column('organization_feedback', sa.Text(), nullable=True, server_default=''),
+        sa.Column('is_winner', sa.Integer(), nullable=True, server_default='0'),
         sa.Column('created_at', sa.DateTime(), nullable=True),
     )
     op.create_table(

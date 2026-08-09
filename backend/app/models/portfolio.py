@@ -16,6 +16,7 @@ class PortfolioEntry(Base):
     skills_proven = Column(Text, default="[]")  # JSON
     score = Column(Integer, default=0)
     organization_feedback = Column(Text, default="")
+    is_winner = Column(Integer, default=0)  # whether organization selected this as the winning submission
     created_at = Column(DateTime, default=datetime.utcnow)
 
     participant = relationship("User", backref="portfolio_entries")

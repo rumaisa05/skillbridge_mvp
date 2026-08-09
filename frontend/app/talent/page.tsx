@@ -17,6 +17,7 @@ type TalentResult = {
   score: number;
   challenge_title: string;
   organization_feedback: string;
+  is_winner: number;
   created_at: string;
 };
 
@@ -104,6 +105,15 @@ export default function TalentPage() {
                     {r.score}
                   </span>
                 </div>
+                {r.is_winner ? (
+                  <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full mb-3">
+                    ✓ Organization Verified
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full mb-3">
+                    AI-Evaluated
+                  </span>
+                )}
                 <p className="text-slate-600 text-sm mb-3 line-clamp-2">{r.description}</p>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {r.skills_proven.map((s: string) => (

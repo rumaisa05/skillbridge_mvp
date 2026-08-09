@@ -59,7 +59,7 @@ def list_challenges(
     items = q.offset(offset).limit(limit).all()
 
     return [_to_out(c) for c in items]
-        
+
 
 @router.get("/{challenge_id}", response_model=ChallengeOut)
 def get_challenge(challenge_id: int, db: Session = Depends(get_db)):
@@ -114,7 +114,8 @@ def delete_challenge(challenge_id: int, db: Session = Depends(get_db),
     db.delete(ch)
     db.commit()
     return {"message": "Challenge deleted"}
-        
+
+
 @router.post("/{challenge_id}/select-winner", response_model=dict)
 def select_winner(challenge_id: int, submission_id: int, db: Session = Depends(get_db),
                   current_user: User = Depends(get_current_user),
@@ -153,6 +154,7 @@ def select_winner(challenge_id: int, submission_id: int, db: Session = Depends(g
             skills_proven=json.dumps(top_skills),
             score=report.overall_score if report else 0,
             organization_feedback=feedback,
+            is_winner=1,
         )
         db.add(portfolio)
     else:
@@ -165,7 +167,12 @@ def select_winner(challenge_id: int, submission_id: int, db: Session = Depends(g
 
     # Reset any previous winner for this challenge
     db.query(Submission).filter(Submission.challenge_id == challenge_id).update({"is_winner": 0})
+    db.query(PortfolioEntry).filter(
+        PortfolioEntry.challenge_id == challenge_id,
+        PortfolioEntry.submission_id != sub.id,
+    ).update({"is_winner": 0})
     sub.is_winner = 1
+    portfolio.is_winner = 1
     ch.status = "selected"
 
     db.add(Notification(

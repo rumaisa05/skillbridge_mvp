@@ -81,6 +81,7 @@ def _ensure_portfolio_entry(db: Session, submission_id: int, feedback: str = "")
             skills_proven=json.dumps(combined_skills),
             score=report.overall_score,
             organization_feedback=feedback,
+            is_winner=sub.is_winner or 0,
         )
         db.add(entry)
     else:
@@ -88,6 +89,7 @@ def _ensure_portfolio_entry(db: Session, submission_id: int, feedback: str = "")
         entry.description = sub.description or entry.description
         entry.skills_proven = json.dumps(combined_skills)
         entry.score = report.overall_score
+        entry.is_winner = sub.is_winner or 0
         if feedback:
             entry.organization_feedback = feedback
     db.commit()

@@ -95,6 +95,7 @@ def search_talent(
             "score": e.score,
             "challenge_title": e.challenge.title if e.challenge else "",
             "organization_feedback": e.organization_feedback or "",
+            "is_winner": e.is_winner or 0,
             "created_at": str(e.created_at),
         })
     return results
