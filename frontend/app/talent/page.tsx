@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import Nav from "@/components/Nav";
 import { api, getAuthUser } from "@/lib/api";
 
@@ -28,6 +27,8 @@ export default function TalentPage() {
   const [skills, setSkills] = useState("");
   const [minScore, setMinScore] = useState(0);
   const [searched, setSearched] = useState(false);
+  const [selectedTalent, setSelectedTalent] = useState<TalentResult | null>(null);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   const user = getAuthUser();
   const isOrganization = user?.role === "organization";
@@ -134,8 +135,12 @@ export default function TalentPage() {
 <span>{r.is_winner ? "Organization-verified project" : "AI-evaluated project"}</span>
                 </div>
                 {isOrganization && (
-                  <Link
-                    href={`/profile/${r.participant_id}`}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedTalent(r);
+                      setShowContactModal(true);
+                    }}
                     className="mt-4 inline-flex items-center justify-center gap-2 w-full bg-brand-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-brand-700 transition"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -143,10 +148,53 @@ export default function TalentPage() {
                       <path d="m18 8.118-8 4-8-4V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.118Z" />
                     </svg>
                     Contact
-                  </Link>
+                  </button>
                 )}
               </div>
             ))}
+          </div>
+        )}
+        {showContactModal && selectedTalent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold">Contact {selectedTalent.participant_name}</h2>
+                  <p className="text-sm text-slate-500 mt-1">This is a demo contact flow. All details are mock values.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowContactModal(false);
+                    setSelectedTalent(null);
+                  }}
+                  className="text-slate-500 hover:text-slate-900"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Verified talent</p>
+                  <p className="mt-2 text-lg font-semibold">{selectedTalent.participant_name}</p>
+                  <p className="mt-2 text-slate-600 text-sm">{selectedTalent.participant_bio}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Demo contact details</p>
+                  <p className="mt-2 text-sm text-slate-700">Email: {selectedTalent.participant_email}</p>
+                  <p className="mt-1 text-sm text-slate-700">GitHub: @{selectedTalent.participant_name.toLowerCase().replace(/\s+/g, "")}</p>
+                  <p className="mt-3 text-sm text-slate-600">Use this screen as a safe demo placeholder instead of exposing a real contact channel.</p>
+                </div>
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-100 p-4">
+                <p className="text-sm font-semibold text-slate-700">Suggested message</p>
+                <p className="mt-3 text-slate-600 text-sm">
+                  Hi {selectedTalent.participant_name}, I saw your verified project for {selectedTalent.challenge_title} on SkillBridge and would like to discuss how your skills can help our team.
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </main>
