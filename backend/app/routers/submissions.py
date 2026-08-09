@@ -26,8 +26,35 @@ def _ensure_portfolio_entry(db: Session, submission_id: int, feedback: str = "")
     if not report:
         return None
 
-    scores = json.loads(report.dimension_scores or "{}")
-    top_skills = sorted(scores, key=scores.get, reverse=True)[:3]
+    def _extract_skills_from_text(*texts: str) -> list[str]:
+        text = " ".join(t for t in texts if t).lower()
+        tokens = [
+            "python",
+            "react",
+            "javascript",
+            "node",
+            "django",
+            "flask",
+            "sql",
+            "postgres",
+            "postgresql",
+            "typescript",
+            "aws",
+            "docker",
+            "html",
+            "css",
+            "vue",
+            "angular",
+            "graphql",
+            "fastapi",
+        ]
+        found: list[str] = []
+        for tok in tokens:
+            if tok in text and tok not in found:
+                found.append(tok)
+        return found
+
+    top_skills = _extract_skills_from_text(sub.description or "", sub.challenge.description if sub.challenge else "", report.summary or "")
 
     participant_skills = []
     if sub.participant and sub.participant.skills:
@@ -143,6 +170,15 @@ def submit_solution(data: SubmissionCreate, db: Session = Depends(get_db),
 @router.get("/{submission_id}/report", response_model=ReportOut)
 def get_report(submission_id: int, db: Session = Depends(get_db),
                current_user: User = Depends(get_current_user)):
+    sub = db.query(Submission).filter(Submission.id == submission_id).first()
+    if not sub:
+        raise HTTPException(status_code=404, detail="Submission not found")
+
+    is_owner_participant = sub.participant_id == current_user.id
+    is_owner_org = sub.challenge is not None and sub.challenge.org_id == current_user.id
+    if current_user.role != "admin" and not is_owner_participant and not is_owner_org:
+        raise HTTPException(status_code=403, detail="You do not have access to this report")
+
     report = db.query(AIReport).filter(AIReport.submission_id == submission_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")

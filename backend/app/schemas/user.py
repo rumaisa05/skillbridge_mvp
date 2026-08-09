@@ -1,11 +1,12 @@
 from pydantic import BaseModel, EmailStr
+from typing import Literal
 
 
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
     name: str
-    role: str = "participant"
+    role: Literal["participant", "organization"] = "participant"
 
 
 class UserOut(BaseModel):
@@ -38,4 +39,3 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserOut
-

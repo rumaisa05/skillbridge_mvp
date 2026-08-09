@@ -11,10 +11,9 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const roleMeta: Record<string, { label: string; desc: string }> = {
+const roleMeta: Record<string, { label: string; desc: string }> = {
     participant: { label: "Participant", desc: "I want to solve challenges & build my portfolio" },
     organization: { label: "Organization", desc: "I want to post challenges & find solutions" },
-    employer: { label: "Employer", desc: "I want to review AI-evaluated talent" },
   };
 
   const submit = async (e: React.FormEvent) => {

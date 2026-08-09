@@ -8,7 +8,6 @@ from enum import Enum
 class UserRole(str, Enum):
     participant = "participant"
     organization = "organization"
-    employer = "employer"
     admin = "admin"
 
 

@@ -17,10 +17,12 @@ def _user_payload(role: str, prefix: str):
 
 
 def test_admin_dashboard_and_user_listing_are_protected_and_sanitized():
-    admin = _user_payload("admin", "adm")
+    # Use seeded admin created by the test harness (conftest.py)
     participant = _user_payload("participant", "part")
 
-    admin_token = client.post("/api/auth/register", json=admin).json()["access_token"]
+    # Login as the seeded admin instead of registering through the public API
+    admin_login = {"email": "test_admin@example.com", "password": "password123"}
+    admin_token = client.post("/api/auth/login", json=admin_login).json()["access_token"]
     participant_token = client.post("/api/auth/register", json=participant).json()["access_token"]
 
     admin_headers = {"Authorization": f"Bearer {admin_token}"}

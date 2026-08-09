@@ -571,8 +571,8 @@ export default function Home() {
             </div>
             <div>
               <p className="font-semibold text-white mb-3">For Employers</p>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/register?role=employer" className="hover:text-white">Hire Talent</Link></li>
+<ul className="space-y-2 text-sm">
+                <li><Link href="/register?role=organization" className="hover:text-white">Hire Talent</Link></li>
                 <li><Link href="/register?role=organization" className="hover:text-white">Partner With Us</Link></li>
               </ul>
             </div>

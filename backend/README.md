@@ -42,6 +42,18 @@ python -m alembic upgrade head
 ## Demo Seeds
 After running migrations, seed the demo organization manually by importing and calling the seed function or by running the app once with the seed helper enabled.
 
+## Test isolation (important)
+
+- The test suite uses a throwaway SQLite database at `backend/test.db` created by `backend/conftest.py`.
+- Tests will not touch your developer `skillbridge.db`. The fixture sets `DATABASE_URL` to the test DB and recreates tables between test modules.
+- If a test needs privileged accounts (admin), the admin user `test_admin@example.com` with password `password123` is seeded into the test DB by the fixture.
+- Run the backend tests with:
+
+```bash
+cd backend
+python -m pytest -q
+```
+
 ## AI Evaluation
 - Default mode is `mock` (heuristic scoring, no external API).
 - To use an LLM, copy `.env.example` to `.env`, set `AI_MODE=llm` and
