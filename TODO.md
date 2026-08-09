@@ -15,3 +15,6 @@ badge on the frontend for winning entries.
 - [x] 7. Display "Organization Verified" badge on portfolio page (frontend/app/portfolio/page.tsx)
 - [x] 8. Display "Organization Verified" badge on talent page (frontend/app/talent/page.tsx)
 - [x] 9. Run backend tests to verify nothing breaks
+
+## Follow-up: Organization Contact option on Find Talent
+- [x] 10. Add "Contact" mailto button on talent cards, shown only to organization users (frontend/app/talent/page.tsx)

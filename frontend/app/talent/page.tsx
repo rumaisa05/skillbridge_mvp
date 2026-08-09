@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
-import { api } from "@/lib/api";
+import { api, getAuthUser } from "@/lib/api";
 
 type TalentResult = {
   id: number;
@@ -27,6 +27,9 @@ export default function TalentPage() {
   const [skills, setSkills] = useState("");
   const [minScore, setMinScore] = useState(0);
   const [searched, setSearched] = useState(false);
+
+  const user = getAuthUser();
+  const isOrganization = user?.role === "organization";
 
   const search = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -130,6 +133,20 @@ export default function TalentPage() {
                   )}
                   <span>AI-evaluated portfolio entry</span>
                 </div>
+                {isOrganization && r.participant_email && (
+                  <a
+                    href={`mailto:${r.participant_email}?subject=${encodeURIComponent(
+                      `Opportunity regarding your project "${r.title}"`
+                    )}`}
+                    className="mt-4 inline-flex items-center justify-center gap-2 w-full bg-brand-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-brand-700 transition"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                      <path d="M2.003 5.884 10 9.882l7.997-3.998A2 2 0 0 0 16 4H4a2 2 0 0 0-1.997 1.884Z" />
+                      <path d="m18 8.118-8 4-8-4V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.118Z" />
+                    </svg>
+                    Contact
+                  </a>
+                )}
               </div>
             ))}
           </div>
