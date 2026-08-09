@@ -170,7 +170,7 @@ export default function ProfilePage() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push("/portfolio")}
+                onClick={() => router.back()}
                 className="text-slate-500 hover:text-slate-700 font-medium"
               >
                 Cancel
