@@ -48,7 +48,12 @@ app.include_router(admin.router)
 @app.on_event("startup")
 def on_startup() -> None:
     apply_migrations()
-    seed()
+    # Never let demo-data problems stop the API from starting.
+    try:
+        seed()
+    except Exception:
+        import logging
+        logging.getLogger("uvicorn.error").exception("Seeding failed; continuing without demo data")
 
 
 @app.get("/api/health")

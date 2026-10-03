@@ -494,11 +494,11 @@ def seed(dry_run: bool = False):
         # the other challenge's submissions as non-winning (AI-evaluated) entries.
         # Winner chosen per challenge by (org_name, challenge_title, participant_name).
         winners = [
-            ("GreenFuture Foundation", "Donation Management Website", "Richard Mensah"),
-            ("Brightvale Academy", "Student Grading Dashboard", "Mei Chen"),
-            ("St. Mary's Health Center", "Patient Intake & Scheduling Tool", "Sofia Rossi"),
-            ("CloudNest", "Team Task Collaboration App", "Richard Mensah"),
-            ("BluePeak Logistics", "Route Optimization Dashboard", "Mei Chen"),
+            ("GreenFuture Foundation", "Donation Management Website", "Cole Hart"),
+            ("Brightvale Academy", "Student Grading Dashboard", "Nina Chen"),
+            ("St. Mary's Health Center", "Patient Intake & Scheduling Tool", "Talia Reed"),
+            ("CloudNest", "Team Task Collaboration App", "Riley Dawn"),
+            ("BluePeak Logistics", "Route Optimization Dashboard", "Nina Chen"),
         ]
         for org_name, ch_title, p_name in winners:
             org = orgs[org_name]
