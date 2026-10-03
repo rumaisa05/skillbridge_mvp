@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
-import { api, getAuthUser } from "@/lib/api";
+import { api, useAuthUser } from "@/lib/api";
 
 type Entry = {
   id: number;
@@ -15,11 +15,13 @@ type Entry = {
 };
 
 export default function PortfolioPage() {
-  const user = getAuthUser();
+  // Read the user once (see useAuthUser) so the effect below runs once, not forever.
+  const { user, ready } = useAuthUser();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!ready) return;
     if (user) {
       api.get("/api/portfolio/mine")
         .then(({ data }) => setEntries(data))
@@ -28,7 +30,7 @@ export default function PortfolioPage() {
     } else {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, ready]);
 
   return (
     <>
@@ -37,7 +39,9 @@ export default function PortfolioPage() {
         <h1 className="text-3xl font-extrabold mb-2">My Portfolio</h1>
         <p className="text-slate-500 mb-8">Your AI-evaluated challenge history and project snapshots.</p>
 
-        {!user ? (
+        {!ready ? (
+          <p className="text-slate-500">Loading...</p>
+        ) : !user ? (
           <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center">
             <p className="text-slate-500 mb-4">Please log in to view your portfolio.</p>
           </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { api } from "@/lib/api";
+import { api, getErrorMessage } from "@/lib/api";
 import Nav from "@/components/Nav";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -60,8 +60,7 @@ export default function ChallengesPage() {
       .catch((err: any) => {
         setChallenges([]);
         setError(
-          err?.response?.data?.detail ||
-            "Could not load challenges. Please check your connection and try again."
+          getErrorMessage(err, "Could not load challenges. Please check your connection and try again.")
         );
       })
       .finally(() => setLoading(false));

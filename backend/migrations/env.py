@@ -12,10 +12,13 @@ from app import models
 config = context.config
 
 # Interpret the config file for Python logging.
-fileConfig(config.config_file_name)
+# disable_existing_loggers=False keeps the app's own logging (and uvicorn's) alive
+# after migrations run at startup.
+fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # Use application settings so migrations match the app database URL.
-config.set_main_option('sqlalchemy.url', settings.database_url)
+# Escape "%" because Alembic's config parser treats it as special.
+config.set_main_option('sqlalchemy.url', settings.database_url.replace('%', '%%'))
 
 target_metadata = Base.metadata
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
-import { api, clearAuth, getAuthUser, setAuth } from "@/lib/api";
+import { api, clearAuth, getAuthUser, setAuth, getErrorMessage } from "@/lib/api";
 
 const ORG_TYPES = ["school", "ngo", "hospital", "startup", "company", "other"];
 
@@ -99,7 +99,7 @@ export default function ProfilePage() {
       if (token) setAuth(token, newUser);
       setMessage({ type: "success", text: "Profile updated successfully!" });
     } catch (err: any) {
-      setMessage({ type: "error", text: err.response?.data?.detail || "Failed to update profile" });
+      setMessage({ type: "error", text: getErrorMessage(err, "Failed to update profile") });
     } finally {
       setSaving(false);
     }
@@ -124,7 +124,7 @@ export default function ProfilePage() {
       clearAuth();
       router.push("/login");
     } catch (err: any) {
-      setMessage({ type: "error", text: err.response?.data?.detail || "Failed to delete account" });
+      setMessage({ type: "error", text: getErrorMessage(err, "Failed to delete account") });
     } finally {
       setSaving(false);
     }

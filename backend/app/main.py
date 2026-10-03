@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 from alembic import command
@@ -6,16 +7,35 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
+from .database import Base, engine
 from .routers import auth, challenges, submissions, portfolio, notifications, admin
 from .seed import seed
+
+logger = logging.getLogger("skillbridge")
+logging.basicConfig(level=logging.INFO)
 
 
 def apply_migrations() -> None:
     project_root = Path(__file__).resolve().parent.parent
     config = Config(str(project_root / "alembic.ini"))
     config.set_main_option("script_location", str(project_root / "migrations"))
-    config.set_main_option("sqlalchemy.url", settings.database_url)
+    # Alembic's config parser treats "%" specially, so escape it (a URL-encoded
+    # database password can contain "%").
+    config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
     command.upgrade(config, "head")
+
+
+def _allowed_origins() -> list[str]:
+    origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://skillbridge-mvp-zdwk.vercel.app",
+    ]
+    for origin in settings.cors_origins.split(","):
+        origin = origin.strip().rstrip("/")
+        if origin and origin not in origins:
+            origins.append(origin)
+    return origins
 
 
 app = FastAPI(
@@ -26,11 +46,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "https://skillbridge-mvp-zdwk.vercel.app",
-    ],
+    allow_origins=_allowed_origins(),
+    # Vercel preview deployments of this project.
     allow_origin_regex=r"https://skillbridge-mvp-zdwk.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
@@ -47,15 +64,22 @@ app.include_router(admin.router)
 
 @app.on_event("startup")
 def on_startup() -> None:
-    apply_migrations()
-    # Never let demo-data problems stop the API from starting.
+    try:
+        apply_migrations()
+    except Exception:
+        # Fall back to creating any missing tables so the API can still start.
+        logger.exception("Alembic migration failed; falling back to create_all()")
+        Base.metadata.create_all(bind=engine)
+
+    # Demo data is a nice-to-have. A seed error must never stop the API, or
+    # login/register/challenges would all be down.
     try:
         seed()
     except Exception:
-        import logging
-        logging.getLogger("uvicorn.error").exception("Seeding failed; continuing without demo data")
+        logger.exception("Seeding demo data failed; continuing without it")
 
 
 @app.get("/api/health")
+@app.get("/health")  # some hosts probe /health by default
 def health():
     return {"status": "ok"}

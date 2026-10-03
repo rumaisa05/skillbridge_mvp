@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
-import { api, getAuthUser } from "@/lib/api";
+import { api, getErrorMessage, useAuthUser } from "@/lib/api";
 
 type UserSummary = {
   users: number;
@@ -24,14 +24,19 @@ type UserRow = {
 };
 
 export default function AdminPage() {
-  const user = getAuthUser();
+  // Read the user once (see useAuthUser) so the effect below runs once, not forever.
+  const { user, ready } = useAuthUser();
   const [summary, setSummary] = useState<UserSummary | null>(null);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!ready) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     if (user.role !== "admin") {
       setError("Admin access required");
       setLoading(false);
@@ -47,14 +52,14 @@ export default function AdminPage() {
         setSummary(summaryRes.data);
         setUsers(usersRes.data);
       } catch (err: any) {
-        setError(err.response?.data?.detail || "Failed to load admin data");
+        setError(getErrorMessage(err, "Failed to load admin data"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [user]);
+  }, [user, ready]);
 
   return (
     <>
@@ -63,7 +68,9 @@ export default function AdminPage() {
         <h1 className="text-3xl font-extrabold mb-3">Admin Dashboard</h1>
         <p className="text-slate-500 mb-8">View platform-wide metrics and user data for moderation.</p>
 
-        {!user ? (
+        {!ready ? (
+          <p className="text-slate-500">Loading...</p>
+        ) : !user ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
             <p className="text-slate-500">Please log in as an admin to view this page.</p>
           </div>

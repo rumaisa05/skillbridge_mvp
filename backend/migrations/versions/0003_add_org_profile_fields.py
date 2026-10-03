@@ -15,15 +15,25 @@ branch_labels = None
 depends_on = None
 
 
+def _has_column(table, column):
+    inspector = sa.inspect(op.get_bind())
+    if table not in inspector.get_table_names():
+        return False
+    return column in {c['name'] for c in inspector.get_columns(table)}
+
+
 def upgrade():
-    op.add_column(
-        'users',
-        sa.Column('org_type', sa.String(), nullable=True, server_default=''),
-    )
-    op.add_column(
-        'users',
-        sa.Column('website', sa.String(), nullable=True, server_default=''),
-    )
+    # Idempotent: skip columns that already exist.
+    if not _has_column('users', 'org_type'):
+        op.add_column(
+            'users',
+            sa.Column('org_type', sa.String(), nullable=True, server_default=''),
+        )
+    if not _has_column('users', 'website'):
+        op.add_column(
+            'users',
+            sa.Column('website', sa.String(), nullable=True, server_default=''),
+        )
 
 
 def downgrade():

@@ -36,6 +36,7 @@ Reuses the existing models and the existing evaluate_submission() / winner
 selection logic — no parallel evaluation or winner logic is created here.
 """
 import json
+import logging
 
 from .database import SessionLocal
 from .models.user import User
@@ -47,8 +48,21 @@ from .models.notification import Notification
 from .ai.evaluator import evaluate_submission
 from .security import hash_password
 
+logger = logging.getLogger("skillbridge.seed")
+
 # Shared demo password so every seeded account is easy to log into.
 DEMO_PASSWORD = "password123"
+
+# bcrypt is deliberately slow (~0.2-0.5 s per hash). Every demo account shares
+# one password, so hash it once instead of once per account.
+_DEMO_PASSWORD_HASH = None
+
+
+def _demo_password_hash() -> str:
+    global _DEMO_PASSWORD_HASH
+    if _DEMO_PASSWORD_HASH is None:
+        _DEMO_PASSWORD_HASH = hash_password(DEMO_PASSWORD)
+    return _DEMO_PASSWORD_HASH
 
 # Version-specific sentinel: an org email unique to THIS new seed set. If this
 # exists, the new seed data has already been loaded.
@@ -85,7 +99,7 @@ def _get_or_create_user(db, email, name, role, bio, **extra):
         return user
     user = User(
         email=email,
-        password_hash=hash_password(DEMO_PASSWORD),
+        password_hash=_demo_password_hash(),
         name=name,
         role=role,
         bio=f"[Demo account] {bio}",
@@ -161,10 +175,13 @@ def _evaluate_and_portfolio(db, sub, challenge, feedback=""):
     if existing_report is not None:
         return
 
+    # fetch_repo=False: the demo repos are placeholders, so skip the GitHub API
+    # calls (up to 3 per submission, 30 submissions) that would slow startup.
     result = evaluate_submission(
         description=sub.description,
         repo_url=sub.repo_url,
         category=challenge.category,
+        fetch_repo=False,
     )
     report = AIReport(
         submission_id=sub.id,
@@ -481,9 +498,16 @@ def seed(dry_run: bool = False):
         ]
 
         for org_name, ch_title, p_name, repo_url, desc in submission_specs:
-            org = orgs[org_name]
-            ch = next(c for c in challenges if c.org_id == org.id and c.title == ch_title)
-            participant = participants[p_name]
+            org = orgs.get(org_name)
+            participant = participants.get(p_name)
+            ch = (
+                next((c for c in challenges if c.org_id == org.id and c.title == ch_title), None)
+                if org is not None else None
+            )
+            if org is None or ch is None or participant is None:
+                logger.warning("Seed: skipping submission (org=%r, challenge=%r, participant=%r): not found",
+                               org_name, ch_title, p_name)
+                continue
             sub = _get_or_create_submission(db, ch, participant, repo_url, desc)
             _evaluate_and_portfolio(db, sub, ch)
             if not _DRY_RUN:
@@ -494,16 +518,23 @@ def seed(dry_run: bool = False):
         # the other challenge's submissions as non-winning (AI-evaluated) entries.
         # Winner chosen per challenge by (org_name, challenge_title, participant_name).
         winners = [
-            ("GreenFuture Foundation", "Donation Management Website", "Cole Hart"),
+            ("GreenFuture Foundation", "Donation Management Website", "Riley Dawn"),
             ("Brightvale Academy", "Student Grading Dashboard", "Nina Chen"),
             ("St. Mary's Health Center", "Patient Intake & Scheduling Tool", "Talia Reed"),
-            ("CloudNest", "Team Task Collaboration App", "Riley Dawn"),
-            ("BluePeak Logistics", "Route Optimization Dashboard", "Nina Chen"),
+            ("CloudNest", "Team Task Collaboration App", "Aria Moon"),
+            ("BluePeak Logistics", "Route Optimization Dashboard", "Juno Brooks"),
         ]
         for org_name, ch_title, p_name in winners:
-            org = orgs[org_name]
-            ch = next(c for c in challenges if c.org_id == org.id and c.title == ch_title)
-            participant = participants[p_name]
+            org = orgs.get(org_name)
+            participant = participants.get(p_name)
+            ch = (
+                next((c for c in challenges if c.org_id == org.id and c.title == ch_title), None)
+                if org is not None else None
+            )
+            if org is None or ch is None or participant is None:
+                logger.warning("Seed: skipping winner (org=%r, challenge=%r, participant=%r): not found",
+                               org_name, ch_title, p_name)
+                continue
             if _DRY_RUN:
                 print(f"-- [winner] challenge='{ch_title}' participant='{p_name}'")
                 continue
@@ -519,7 +550,10 @@ def seed(dry_run: bool = False):
         if dry_run:
             print("-- END DRY RUN: no database writes were made.")
         else:
-            print("Seeded demo organizations, participants, challenges, submissions, AI reports, "
-                  "portfolio entries, and winners.")
+            logger.info("Seeded demo organizations, participants, challenges, submissions, "
+                        "AI reports, portfolio entries, and winners.")
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()

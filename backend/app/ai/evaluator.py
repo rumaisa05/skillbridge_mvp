@@ -55,56 +55,41 @@ def _normalise_repo_url(repo_url: str) -> str:
     return cleaned.rstrip("/")
 
 
+def _empty_insights(summary: str) -> dict:
+    """Repository signals used when a repo can't (or shouldn't) be inspected."""
+    return {
+        "file_count": 0,
+        "readme_length": 0,
+        "has_tests": False,
+        "has_security_config": False,
+        "has_frontend": False,
+        "has_backend": False,
+        "has_lockfile": False,
+        "has_readme": False,
+        "languages": [],
+        "file_names": [],
+        "repo_summary": summary,
+    }
+
+
 def fetch_repository_insights(repo_url: str) -> dict:
     """Collect lightweight repository metadata for scoring without fetching full source files."""
     normalized = _normalise_repo_url(repo_url)
     if not normalized:
-        return {
-            "file_count": 0,
-            "readme_length": 0,
-            "has_tests": False,
-            "has_security_config": False,
-            "has_frontend": False,
-            "has_backend": False,
-            "has_lockfile": False,
-            "has_readme": False,
-            "languages": [],
-            "file_names": [],
-            "repo_summary": "No repository URL provided.",
-        }
+        return _empty_insights("No repository URL provided.")
 
     parsed = urlparse(normalized)
     host = parsed.netloc.lower()
     if not parsed.path or host not in {"github.com", "www.github.com", "gitlab.com", "www.gitlab.com"}:
-        return {
-            "file_count": 0,
-            "readme_length": 0,
-            "has_tests": False,
-            "has_security_config": False,
-            "has_frontend": False,
-            "has_backend": False,
-            "has_lockfile": False,
-            "has_readme": False,
-            "languages": [],
-            "file_names": [],
-            "repo_summary": "Repository URL is not a supported public Git host.",
-        }
+        return _empty_insights(
+            "Repository URL is not a supported public Git host."
+        )
 
     path_parts = [segment for segment in parsed.path.split("/") if segment]
     if len(path_parts) < 2:
-        return {
-            "file_count": 0,
-            "readme_length": 0,
-            "has_tests": False,
-            "has_security_config": False,
-            "has_frontend": False,
-            "has_backend": False,
-            "has_lockfile": False,
-            "has_readme": False,
-            "languages": [],
-            "file_names": [],
-            "repo_summary": "Repository URL does not include an owner and project name.",
-        }
+        return _empty_insights(
+            "Repository URL does not include an owner and project name."
+        )
 
     owner, repo_name = path_parts[:2]
     api_root = f"https://api.github.com/repos/{owner}/{repo_name}"
@@ -140,7 +125,7 @@ def fetch_repository_insights(repo_url: str) -> dict:
 
         lowercase_files = [path.lower() for path in files]
         has_tests = any(
-            segment in path or "test" in path.lower() or "/test" in path.lower() or "spec" in path.lower()
+            "test" in path or ".spec." in path or "_spec." in path
             for path in lowercase_files
         )
         has_security_config = any(
@@ -180,25 +165,20 @@ def fetch_repository_insights(repo_url: str) -> dict:
             "repo_summary": repo_summary,
         }
     except Exception:
-        return {
-            "file_count": 0,
-            "readme_length": 0,
-            "has_tests": False,
-            "has_security_config": False,
-            "has_frontend": False,
-            "has_backend": False,
-            "has_lockfile": False,
-            "has_readme": False,
-            "languages": [],
-            "file_names": [],
-            "repo_summary": "Repository could not be inspected, so scoring relies on the submission description only.",
-        }
+        return _empty_insights(
+            "Repository could not be inspected, so scoring relies on the submission description only."
+        )
 
 
-def _mock_evaluate(description: str, repo_url: str = "", category: str = "web") -> EvaluationResult:
+def _mock_evaluate(description: str, repo_url: str = "", category: str = "web",
+                   fetch_repo: bool = True) -> EvaluationResult:
     """Heuristic scoring based on submission content and repo signals."""
     text = f"{description or ''}".lower()
-    repo = fetch_repository_insights(repo_url)
+    repo = (
+        fetch_repository_insights(repo_url)
+        if fetch_repo
+        else _empty_insights("Repository was not inspected.")
+    )
     has_repo = bool(repo_url and "http" in repo_url)
     has_explicit_docs = any(k in text for k in ["documentation", "readme", "docs"])
     has_design = any(k in text for k in ["ui", "ux", "frontend", "design", "responsive"])
@@ -297,10 +277,15 @@ def _mock_evaluate(description: str, repo_url: str = "", category: str = "web") 
     )
 
 
-def _llm_evaluate(description: str, repo_url: str = "", category: str = "web") -> EvaluationResult:
+def _llm_evaluate(description: str, repo_url: str = "", category: str = "web",
+                  fetch_repo: bool = True) -> EvaluationResult:
     """Use an LLM to evaluate a submission qualitatively. Requires openai_api_key."""
     try:
-        repo = fetch_repository_insights(repo_url)
+        repo = (
+            fetch_repository_insights(repo_url)
+            if fetch_repo
+            else _empty_insights("Repository was not inspected.")
+        )
         prompt = f"""
 You are SkillBridge's AI evaluator. Evaluate the following project submission against 7 weighted dimensions.
 Return a JSON object with keys: dimension_scores, strengths (list), weaknesses (list), recommendations (list), summary.
@@ -350,10 +335,12 @@ Only return valid JSON.
         )
     except Exception:
         # Fall back to mock on any LLM error so the flow never breaks.
-        return _mock_evaluate(description, repo_url, category)
+        return _mock_evaluate(description, repo_url, category, fetch_repo)
 
 
-def evaluate_submission(description: str, repo_url: str = "", category: str = "web") -> EvaluationResult:
+def evaluate_submission(description: str, repo_url: str = "", category: str = "web",
+                        fetch_repo: bool = True) -> EvaluationResult:
+    """Score a submission. Pass fetch_repo=False to skip all GitHub network calls."""
     if settings.ai_mode == "llm":
-        return _llm_evaluate(description, repo_url, category)
-    return _mock_evaluate(description, repo_url, category)
+        return _llm_evaluate(description, repo_url, category, fetch_repo)
+    return _mock_evaluate(description, repo_url, category, fetch_repo)

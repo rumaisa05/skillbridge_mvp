@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { api, setAuth } from "@/lib/api";
+import { api, setAuth, getErrorMessage } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function LoginPage() {
       setAuth(data.access_token, data.user);
       router.push("/challenges");
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Login failed");
+      setError(getErrorMessage(err, "Login failed"));
     } finally {
       setLoading(false);
     }

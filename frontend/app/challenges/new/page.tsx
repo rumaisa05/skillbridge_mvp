@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
-import { api, getAuthUser } from "@/lib/api";
+import { api, getAuthUser, getErrorMessage } from "@/lib/api";
 
 export default function NewChallengePage() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function NewChallengePage() {
       await api.post("/api/challenges", form);
       router.push("/challenges");
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Failed to create challenge");
+      setError(getErrorMessage(err, "Failed to create challenge"));
     } finally {
       setLoading(false);
     }

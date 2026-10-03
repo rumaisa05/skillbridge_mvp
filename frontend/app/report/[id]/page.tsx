@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import ScoreRadar from "@/components/RadarChart";
-import { api, getAuthUser } from "@/lib/api";
+import { api, getAuthUser, getErrorMessage } from "@/lib/api";
 
 type Report = {
   overall_score: number;
@@ -38,7 +38,7 @@ export default function ReportPage() {
       const { data } = await api.post(`/api/submissions/${id}/portfolio`);
       setPortfolioMsg(data.message || "Added to portfolio");
     } catch (e: any) {
-      setPortfolioMsg(e.response?.data?.detail || "Could not add to portfolio");
+      setPortfolioMsg(getErrorMessage(e, "Could not add to portfolio"));
     }
   };
 

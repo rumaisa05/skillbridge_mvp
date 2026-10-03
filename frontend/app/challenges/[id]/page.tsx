@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/components/Nav";
-import { api, getAuthUser } from "@/lib/api";
+import { api, getAuthUser, getErrorMessage } from "@/lib/api";
 
 type Challenge = {
   id: number;
@@ -65,7 +65,7 @@ export default function ChallengeDetail() {
       setMessage({ type: "success", text: "Submission accepted! Your AI evaluation report is being generated." });
       setTimeout(() => router.push(`/report/${data.id}`), 1200);
     } catch (err: any) {
-      setMessage({ type: "error", text: err.response?.data?.detail || "Submission failed" });
+      setMessage({ type: "error", text: getErrorMessage(err, "Submission failed") });
     } finally {
       setSubmitting(false);
     }
@@ -93,7 +93,7 @@ export default function ChallengeDetail() {
       setChallenge({ ...challenge, status: "closed" });
       setMessage({ type: "success", text: "Challenge closed." });
     } catch (err: any) {
-      setMessage({ type: "error", text: err.response?.data?.detail || "Failed to close challenge" });
+      setMessage({ type: "error", text: getErrorMessage(err, "Failed to close challenge") });
     }
   };
 
@@ -103,7 +103,7 @@ export default function ChallengeDetail() {
       await api.delete(`/api/challenges/${challenge.id}`);
       router.push("/challenges");
     } catch (err: any) {
-      setMessage({ type: "error", text: err.response?.data?.detail || "Failed to delete challenge" });
+      setMessage({ type: "error", text: getErrorMessage(err, "Failed to delete challenge") });
     }
   };
 

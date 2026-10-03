@@ -5,6 +5,9 @@ from .config import settings
 
 engine = create_engine(
     settings.database_url,
+    # Free hosts/databases (e.g. Neon) close idle connections; test each
+    # connection before use so a sleeping DB doesn't cause random 500s.
+    pool_pre_ping=True,
     connect_args={"check_same_thread": False} if settings.database_url.startswith("sqlite") else {},
 )
 

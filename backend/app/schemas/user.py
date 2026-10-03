@@ -1,5 +1,10 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Literal
+
+
+def _clean_email(value):
+    """Trim whitespace and lower-case, so 'Ngo@X.com ' and 'ngo@x.com' are the same account."""
+    return value.strip().lower() if isinstance(value, str) else value
 
 
 class UserCreate(BaseModel):
@@ -7,6 +12,11 @@ class UserCreate(BaseModel):
     password: str
     name: str
     role: Literal["participant", "organization"] = "participant"
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def _normalise_email(cls, value):
+        return _clean_email(value)
 
 
 class UserOut(BaseModel):
@@ -37,6 +47,11 @@ class UserUpdate(BaseModel):
 class Login(BaseModel):
     email: str
     password: str
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def _normalise_email(cls, value):
+        return _clean_email(value)
 
 
 class Token(BaseModel):

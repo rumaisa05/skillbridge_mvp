@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { api, setAuth } from "@/lib/api";
+import { api, setAuth, getErrorMessage } from "@/lib/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -30,7 +30,7 @@ const roleMeta: Record<string, { label: string; desc: string }> = {
       setAuth(data.access_token, data.user);
       router.push("/challenges");
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Registration failed");
+      setError(getErrorMessage(err, "Registration failed"));
     } finally {
       setLoading(false);
     }

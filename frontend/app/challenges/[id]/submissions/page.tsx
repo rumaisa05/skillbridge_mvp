@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/components/Nav";
-import { api, getAuthUser } from "@/lib/api";
+import { api, getErrorMessage, useAuthUser } from "@/lib/api";
 
 type Submission = {
   id: number;
@@ -23,12 +23,15 @@ type Submission = {
 export default function SubmissionsPage() {
   const { id } = useParams();
   const router = useRouter();
-  const user = getAuthUser();
+  // Read the user once (see useAuthUser). Calling getAuthUser() here made a new
+  // object every render and re-ran the effect below forever.
+  const { user, ready } = useAuthUser();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
+    if (!ready) return;
     if (!user || user.role !== "organization") {
       router.push("/login");
       return;
@@ -37,7 +40,7 @@ export default function SubmissionsPage() {
       .then(({ data }) => setSubmissions(data))
       .catch(() => setSubmissions([]))
       .finally(() => setLoading(false));
-  }, [id, user, router]);
+  }, [id, user, ready, router]);
 
   const selectWinner = async (submissionId: number) => {
     setMessage(null);
@@ -48,9 +51,18 @@ export default function SubmissionsPage() {
       const res = await api.get(`/api/submissions?challenge_id=${id}`);
       setSubmissions(res.data);
     } catch (err: any) {
-      setMessage({ type: "error", text: err.response?.data?.detail || "Failed to select winner" });
+      setMessage({ type: "error", text: getErrorMessage(err, "Failed to select winner") });
     }
   };
+
+  if (!ready) {
+    return (
+      <>
+        <Nav />
+        <p className="max-w-4xl mx-auto px-4 py-10 text-slate-500">Loading...</p>
+      </>
+    );
+  }
 
   if (!user || user.role !== "organization") {
     return (

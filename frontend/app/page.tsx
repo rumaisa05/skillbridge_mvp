@@ -5,7 +5,7 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import ScoreRadar from "@/components/RadarChart";
 import Typewriter from "@/components/Typewriter";
-import { api, getAuthUser } from "@/lib/api";
+import { api, getAuthUser, getErrorMessage } from "@/lib/api";
 
 type HeroStat = {
   value: number;
@@ -189,8 +189,7 @@ export default function Home() {
       .catch((err: any) => {
         setChallenges([]);
         setError(
-          err?.response?.data?.detail ||
-            "Could not load challenges. Please check your connection and try again."
+          getErrorMessage(err, "Could not load challenges. Please check your connection and try again.")
         );
       })
       .finally(() => setLoading(false));
